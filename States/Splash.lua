@@ -45,7 +45,8 @@ end
 
 function Splash:draw()
   love.graphics.setColor(255,255,255,255)
-  UI:Draw(self.LOGO,_Width/2,_Height/2,self.LOGO:getWidth()*0.5,self.LOGO:getHeight()*0.5,nil,true)
+  love.graphics.draw(self.LOGO,_Width/2,_Height/2,0,1,1,self.LOGO:getWidth()/2,self.LOGO:getHeight()/2)
+  --UI:Draw(self.LOGO,_Width/2,_Height/2,self.LOGO:getWidth(),self.LOGO:getHeight(),nil,true)
   
   love.graphics.setColor(0,0,0,self.alpha[1])
   love.graphics.rectangle("fill",0,0,_Width,_Height)

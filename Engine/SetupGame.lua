@@ -37,6 +37,8 @@ end
 
 function SetupGame:init()
   _PixelFont = Font("Libs/Fonts/Pixel.ttf")
+  
+  _Loaded = false
 
   _Width, _Height = love.graphics.getDimensions()
   _SystemOS = love.system.getOS()

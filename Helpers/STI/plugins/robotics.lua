@@ -9,8 +9,17 @@ return {
           local Wall = {Type="Wall"}
           bumpworld:add(Wall, object.x,object.y,object.width,object.height)
           object.bump = Wall
+        elseif object.type == "" then
+          
+        elseif object.type == "" then
+          
+        elseif object.type == "" then
+          
+        elseif object.type == "" then
+          
         end
       end
+      
       --[[if object.properties and object.properties.Bump then
         if object.properties.Bump == "Body" then
           object.bump = block(world,object.x,object.y,object.width,object.height)

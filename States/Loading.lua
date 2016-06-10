@@ -21,17 +21,43 @@ local Loading = {} --(LibLoader) Shortcut--
 local Gamestate = require("Helpers.hump.gamestate")
 local Timer = require("Helpers.hump.timer")
 local Tweens = require("Helpers.tween")
-local Loader = require("Helpers.Loader")
+local loader = require("Helpers.love-loader")
 
 local DevPlay = require("States.DevPlay")
 
 function Loading:init()
-  Loader:init({_Images,_Sounds,_Fonts,_ImageDatas,_rawJData,_rawINIData,_Maps})
+  --Loader:init({_Images,_Sounds,_Fonts,_ImageDatas,_rawJData,_rawINIData,_Maps})
   self.fadingTime = 0.5
   
-  self:LibFolder("/Libs/");
+  self:indexDirectory("/Libs/")
   
-  print("Loading Initialized") --DEBUG
+  loader.start(function() _Loaded = true end)
+end
+
+function Loading:getType(e)
+  if e == "png" or e == "jpg" then
+    return "image"
+  end
+end
+
+function Loading:indexDirectory(dir)
+  local files = love.filesystem.getDirectoryItems(dir)
+  for k,filename in ipairs(files) do
+    if love.filesystem.isDirectory(dir..filename) then
+      self:indexDirectory(dir..filename.."/")
+    else
+      local p, n, e = self:splitFilePath(dir..filename)
+      local type = self:getType(e)
+      if type == "image" then
+        loader.newImage(_Images, n, dir..filename)
+      end
+    end
+  end
+end
+
+function Loading:splitFilePath(path)
+  local p, n, e = path:match("(.-)([^\\/]-%.?([^%.\\/]*))$")
+  return p, n:sub(1, -e:len()), e
 end
 
 function Loading:enter()
@@ -48,24 +74,20 @@ end
 function Loading:update(dt)
   self.tween:update(dt)
   Timer.update(dt)
-  Loader:Update()
-  
-  if math.floor(Loader:getProgress()*100) == 100 and not _Loaded then
-    _Loaded = true
-    print("Loading Done") --DEBUG
-  end
+  if not _Loaded then loader.update() end
 end
 
 function Loading:draw()
+  local LE = (_Width/3)/self.robot:getWidth()
   love.graphics.setColor(255,255,255,255)
   --self.sheet:draw("RobotOutline",_Width/4,_Height/2,0,25,25,11,11)
   love.graphics.draw(self.robotout,_Width/4,_Height/2,0,(_Width/3)/self.robotout:getWidth(),(_Width/3)/self.robotout:getHeight(),self.robotout:getWidth()/2,self.robotout:getHeight()/2)
   
-  local height = math.floor(Loader:getProgress()*23*25)
+  local height = math.floor((loader.loadedCount / loader.resourceCount)*self.robot:getHeight()*LE)
   
-  love.graphics.stencil(function() love.graphics.rectangle("fill",_Width/4-10*25,(_Height/2+11*25)-height,25*20,height) end)
+  love.graphics.stencil(function() love.graphics.rectangle("fill",0,_Height/2+(self.robot:getHeight()*0.5*LE),_Width/2,-height) end)
   love.graphics.setStencilTest("greater", 0)
-  love.graphics.draw(self.robot,_Width/4,_Height/2,0,(_Width/3)/self.robot:getWidth(),(_Width/3)/self.robot:getHeight(),self.robot:getWidth()/2,self.robot:getHeight()/2)
+  love.graphics.draw(self.robot,_Width/4,_Height/2,0,LE,LE,self.robot:getWidth()/2,self.robot:getHeight()/2)
   --self.sheet:draw("Robot_Normal",_Width/4,_Height/2,0,25,25,10,10)
   love.graphics.setStencilTest()
   
@@ -75,7 +97,7 @@ function Loading:draw()
   local text = "Robotics2D V".._Version.."\n".._State.."\n"
   for i=0,text:len()-14 do text = text.."-" end
   if not _Loaded then
-    text = text.."\n Loading "..math.floor(Loader:getProgress()*100).."%"
+    text = text.."\n Loading "..math.floor((loader.loadedCount / loader.resourceCount)*100).."%"
   else
     text = text.."\n\nPress any key to continue"
   end
