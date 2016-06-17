@@ -4,6 +4,8 @@
 		"Ground",
 		"Robot_Marker_Ground",
 		"Wall",
-		"Arrow_Marker"
+		"Arrow_Marker",
+		"Question_Marker",
+		"Exclamation_Marker"
 	]
 }
