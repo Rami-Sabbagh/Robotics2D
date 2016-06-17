@@ -30,7 +30,7 @@ while true do
   local ts = love.image.newImageData(tsWidth*tSize,tsHeight*tSize)
   
   for k, tile in ipairs(tiles) do
-    local tx = k % tsWidth > 0 and (k % tsWidth -1)*tSize or 0
+    local tx = k % tsWidth > 0 and (k % tsWidth -1)*tSize or (k/tsWidth >= 1 and (tsWidth-1)*tSize or 0)
     local ty = k % tsWidth > 0 and (math.floor(k/tsWidth) +1)*tSize or (k/tsWidth -1)*tSize
     for x=0, tile:getWidth()-1 do
       for y=0, tile:getHeight()-1 do
