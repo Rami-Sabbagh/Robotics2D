@@ -5,7 +5,9 @@
 local TC = {}
 
 function TC:compileTiled(path)
-  local TMap = love.filesystem.load(path)
+  local tm = love.filesystem.load(path)()
+  local rm = {}
+  rm.w, rm.h = tm.width, tm.height
   
 end
 
