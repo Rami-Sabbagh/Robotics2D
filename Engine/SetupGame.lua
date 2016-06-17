@@ -47,6 +47,8 @@ function SetupGame:init()
   
   love.graphics.setDefaultFilter("nearest","nearest")
   
+  _Tileset = {}
+  
   --Loader Variables--
   _Images,_Sounds,_Fonts,_ImageDatas,_rawJData,_rawINIData,_ImageQualities,_Maps,_TEXTUREQUALITY = {},{},{},{},{},{},{},{},"High"
   
