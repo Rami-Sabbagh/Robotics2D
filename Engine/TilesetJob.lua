@@ -26,7 +26,7 @@ while true do
   local tsWidth = math.floor(math.sqrt(tNum))
   local tsHeight = tNum % tsWidth > 0 and math.floor(tNum/tsWidth)+1 or tNum/tsWidth
   
-  local tsData = {TileSize = tSize,TilesetWidth=tsWidth,TilesetHeight=tsHeight,Tiles={}}
+  local tsData = {TileSize = tSize,TilesetWidth=tsWidth,TilesetHeight=tsHeight,Tiles={},GUIDs={}}
   local ts = love.image.newImageData(tsWidth*tSize,tsHeight*tSize)
   
   for k, tile in ipairs(tiles) do
@@ -35,11 +35,14 @@ while true do
     local ty = math.floor(tn/tsWidth)*tSize
     for x=0, tile:getWidth()-1 do
       for y=0, tile:getHeight()-1 do
-        print("TX "..tx,"TY "..ty,"X "..x,"Y "..y,"Name "..tNames[k])
         ts:setPixel(tx+x,ty+y,tile:getPixel(x,y))
       end
     end
     tsData.Tiles[tNames[k]] = {x=tx,y=ty,tx=tx/tSize +1,ty=ty/tSize +1}
+  end
+  
+  for k,v in ipairs(tNames) do
+    tsData.GUIDs[k] = v
   end
   
   love.filesystem.write("/TSB/"..tsName..".tsb",JSON:encode_pretty(tsData))
