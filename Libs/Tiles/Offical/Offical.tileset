@@ -3,6 +3,7 @@
 	"Tiles": [
 		"Ground",
 		"Robot_Marker_Ground",
-		"Wall"
+		"Wall",
+		"Arrow_Marker"
 	]
 }
