@@ -1,6 +1,7 @@
 io.stdout:setvbuf("no") _Version = "0.0.1 B0" _State = "WIP"
+if os.getenv('DEBUG_MODE') then require('debugger')() ; end--require('debugger.plugins.ffi') end
 
-love.filesystem.write("DumpTest.lua",string.dump(love.filesystem.load("/Libs/Levels/Dev.lua")))
+--love.filesystem.write("DumpTest.lua",string.dump(love.filesystem.load("/Libs/Levels/Dev.lua")))
 
 local GameSetup = require("Engine.SetupGame")
 local Gamestate = require("Helpers.hump.gamestate")
@@ -41,4 +42,9 @@ end
 
 function love.textinput(text)
   
+end
+
+function love.threaderror(thread, errorstr)
+  error("Thread error!\n"..errorstr)
+  -- thread:getError() will return the same error string now.
 end
