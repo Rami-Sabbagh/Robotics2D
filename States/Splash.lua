@@ -1,72 +1,136 @@
---This file is part of PixelizerBox--
---[[
-  * Copyright 2015 RamiLego4Game
-  * 
-  * Licensed under the Apache License, Version 2.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  * 
-  *     http://www.apache.org/licenses/LICENSE-2.0
-  * 
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
---]]
-
---Type : Class/State--
-local Splash = {}
+--This file is part of Robotics2D--
+local Splash = {} --(LibLoader) Shortcut--
 
 --Requirements--
-local UI = require("Engine.UI")
-local JSON = require("Helpers.json")
 local Gamestate = require("Helpers.hump.gamestate")
 local Timer = require("Helpers.hump.timer")
 local Tweens = require("Helpers.tween")
-local Loading = require("States.Loading")
+local loader = require("Helpers.love-loader")
+
+local JSON = require("Helpers.json")
+
+local TSSystem = require("Engine.TilesetSystem")
+
 local Material = require("Helpers.p-mug.third-party.material-love")
+
+local DevPlay = require("States.DevPlay")
 
 function Splash:init()
   self.LOGO = love.graphics.newImage("Libs/Misc/RL4G_LOGO.png")
+  
   self.fadingTime = 0.5
   self.showTime = 1
-  print("Splash Initialized") --DEBUG
+  Timer.add(self.fadingTime+self.showTime,function()
+    if _Loaded then
+      self.tween = Tweens.new(self.fadingTime,self.alpha,{255})
+      Timer.add(self.fadingTime,function() Gamestate.switch(DevPlay) end)
+      self.exiting = true
+    else
+      self.allowExit = true
+    end
+  end)
+  
+  self.text = "(1/3) Loading ..."
+  
+  self.showPrecentage = "(1/3) Loading "
+  
+  self:indexDirectory("/Libs/")
+  
+  loader.start(function()
+    self.showPrecentage = false
+    self.text = "(2/3) Building Tilesets ..."
+    TSSystem:buildTilesets("/Libs/",function()
+      self.text = "(3/3) Loading Tilesets ..."
+      self.showPrecentage = "(3/3) Loading Tilesets "
+      self:indexDirectory("/TSB/")
+      loader.start(function()
+        self.showPrecentage = false
+        self.text = ""
+        _Loaded = true
+      end)
+    end)
+  end)
+end
+
+function Splash:getType(e)
+  if e == "png" or e == "jpg" then
+    return "image"
+  elseif e == "tsb" then
+    return "TilesetBuild"
+  end
+end
+
+function Splash:indexDirectory(dir)
+  local files = love.filesystem.getDirectoryItems(dir)
+  for k,filename in ipairs(files) do
+    if love.filesystem.isDirectory(dir..filename) then
+      self:indexDirectory(dir..filename.."/")
+    else
+      local p, n, e = self:splitFilePath(dir..filename)
+      local type = self:getType(e)
+      if type == "image" then
+        loader.newImage(_Images, n, dir..filename)
+      elseif type == "TilesetBuild" then
+        _Tileset[n] = JSON:decode(love.filesystem.read(dir..filename))
+      end
+    end
+  end
+end
+
+function Splash:splitFilePath(path)
+  local p, n, e = path:match("(.-)([^\\/]-%.?([^%.\\/]*))$")
+  return p, n:sub(1, -e:len()-2), e
 end
 
 function Splash:enter()
-  print("Splash Entered") --DEBUG
   self.alpha = {255}
   self.tween = Tweens.new(self.fadingTime,self.alpha,{0})
-  Timer.add(self.fadingTime+self.showTime,function() self.tween = Tweens.new(self.fadingTime,self.alpha,{255}) end)
-  Timer.add((self.fadingTime*2)+self.showTime,function() Gamestate.switch(Loading) end)
   
   love.graphics.setBackgroundColor(Material.colors.background("dark"))
+end
+
+function Splash:update(dt)
+  if self.showPrecentage then
+    self.text = self.showPrecentage..math.floor((loader.loadedCount / loader.resourceCount)*100).."%"
+  end
+  
+  if not _Loaded then TSSystem:update() loader.update() elseif self.allowExit and not self.exiting then
+    self.tween = Tweens.new(self.fadingTime,self.alpha,{255})
+    Timer.add(self.fadingTime,function() Gamestate.switch(DevPlay) end)
+  end
+  
+  self.tween:update(dt)
+  Timer.update(dt)
 end
 
 function Splash:draw()
   love.graphics.setColor(255,255,255,255)
   love.graphics.draw(self.LOGO,_Width/2,_Height/2,0,1,1,self.LOGO:getWidth()/2,self.LOGO:getHeight()/2)
-  --UI:Draw(self.LOGO,_Width/2,_Height/2,self.LOGO:getWidth(),self.LOGO:getHeight(),nil,true)
   
+  local XPadding, YPadding = 20,15
+  --love.graphics.setColor(Material.colors.mono("white","button"))
+  love.graphics.setColor(Material.colors.main("blue-grey"))
+  love.graphics.setFont(Material.roboto.button)
+  local TextWidth, TextHeight = Material.roboto.button:getWidth(self.text), Material.roboto.button:getHeight(self.text)
+  love.graphics.print(self.text,_Width-(TextWidth+XPadding),_Height-(TextHeight+YPadding))
+  
+  --Fade--
   love.graphics.setColor(0,0,0,self.alpha[1])
   love.graphics.rectangle("fill",0,0,_Width,_Height)
 end
 
-function Splash:update(dt)
-  self.tween:update(dt)
-  Timer.update(dt)
-end
-
 function Splash:leave()
-  print("Splash Leaved") --DEBUG
-  Timer.clear()
+  print("Loading Leaved") --DEBUG
 end
 
-function Splash:keyreleased()
-  love.graphics.setColor(255,255,255,255)
-  print("Splash Skipped") --DEBUG
-  Gamestate.switch(Loading)
+function Splash:LibFolder(dir)
+  Loader:LoadFolder(dir)
+  local files = love.filesystem.getDirectoryItems(dir)
+  for k,file in pairs(files) do
+    if love.filesystem.isDirectory(dir..file) then
+      self:LibFolder(dir..file.."/")
+    end
+  end
 end
 
 return Splash
