@@ -1,5 +1,8 @@
-[
-	"Ground",
-	"Robot_Marker_Ground",
-	"Wall"
-]
+{
+	"TileSize": 32,
+	"Tiles": [
+		"Ground",
+		"Robot_Marker_Ground",
+		"Wall"
+	]
+}

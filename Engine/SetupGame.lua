@@ -60,6 +60,7 @@ function SetupGame:init()
     require("Helpers.LightVsShadow.postshader")
   end
   
+  if not love.filesystem.exists("/TSB") then love.filesystem.createDirectory("/TSB") end
   if not love.filesystem.exists("/Screenshots") then love.filesystem.createDirectory("/Screenshots") end
 end
 
