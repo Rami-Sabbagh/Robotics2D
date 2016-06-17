@@ -25,6 +25,7 @@ local Gamestate = require("Helpers.hump.gamestate")
 local Timer = require("Helpers.hump.timer")
 local Tweens = require("Helpers.tween")
 local Loading = require("States.Loading")
+local Material = require("Helpers.p-mug.third-party.material-love")
 
 function Splash:init()
   self.LOGO = love.graphics.newImage("Libs/Misc/RL4G_LOGO.png")
@@ -40,7 +41,7 @@ function Splash:enter()
   Timer.add(self.fadingTime+self.showTime,function() self.tween = Tweens.new(self.fadingTime,self.alpha,{255}) end)
   Timer.add((self.fadingTime*2)+self.showTime,function() Gamestate.switch(Loading) end)
   
-  love.graphics.setBackgroundColor(255,255,255,255)
+  love.graphics.setBackgroundColor(Material.colors.background("dark"))
 end
 
 function Splash:draw()
