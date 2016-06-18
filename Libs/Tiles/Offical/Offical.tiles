@@ -1,0 +1,19 @@
+{
+	"Offical_Ground": {
+		"lua": "Base",
+		"tileset": "Offical",
+		"tileimage": "Offical_Ground"
+	},
+	
+	"Offical_Wall": {
+		"lua": "Base",
+		"tileset": "Offical",
+		"tileimage": "Offical_Wall"
+	},
+	
+	"Offical_Arrow_Marker": {
+		"lua": "Base",
+		"tileset": "Offical",
+		"tileimage": "Offical_Arrow_Marker"
+	}
+}
