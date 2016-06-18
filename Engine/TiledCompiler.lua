@@ -46,7 +46,7 @@ function TC:compileTiled(path,targetpath,dump)
           local tname = _Tileset[tsname].GIDs[ngid]
           if not tiles[tname] then
             table.insert(rm.t,tname)
-            tiles[tname] = 2
+            tiles[tname] = #rm.t
           end
           table.insert(rm.d,tiles[tname])
           table.insert(rotData,rd)
