@@ -3,6 +3,8 @@ local Gamera = require("Helpers.gamera")
 local Tweens = require("Helpers.tween")
 local Bump = require("Helpers.bump")
 
+local TiledCompiler = require("Engine.TiledCompiler")
+
 local DevPlay = {}
 
 function DevPlay:init()
@@ -12,6 +14,8 @@ end
 
 function DevPlay:enter()
   love.graphics.setBackgroundColor(75,75,75,255)
+  
+  TiledCompiler:compileTiled("/Tiled/Test.lua","/TiledCompileTest.lua")
   
   --[[local Map = _Maps["Level1"] Map.bump = Bump.newWorld(16) Map:robotics_init(Map.bump)
   self.camera = Gamera.new(0,0,Map.width*Map.tilewidth,Map.height*Map.tileheight)
