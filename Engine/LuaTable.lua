@@ -138,7 +138,7 @@ function LuaTable.encode_function(func,pretty,funcBehave)
 end
 
 function LuaTable.encode_userdata(ud,pretty,funcBehave)
-  if funcBehave and funcBehave == "name" then return '"'..tostring(ud)..'"' else return "nil" end
+  if funcBehave and (funcBehave == "name" or funcBehave == "dump") then return '"'..tostring(ud)..'"' else return "nil" end
 end
 
 function LuaTable.encode_nil()
