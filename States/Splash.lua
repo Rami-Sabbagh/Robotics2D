@@ -9,6 +9,7 @@ local loader = require("Helpers.love-loader")
 
 local JSON = require("Helpers.json")
 
+local TilesSystem = require("Engine.TilesSystem")
 local TSSystem = require("Engine.TilesetSystem")
 
 local Material = require("Helpers.p-mug.third-party.material-love")
@@ -43,6 +44,8 @@ function Splash:init()
       self.text = "(3/3) Loading Tilesets ..."
       self.showPrecentage = "(3/3) Loading Tilesets "
       self:indexDirectory("/TSB/")
+      TilesSystem:loadLuaTiles("Tiles/")
+      TilesSystem:loadTiles("Libs/")
       loader.start(function()
         self.showPrecentage = false
         self.text = ""
