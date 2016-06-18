@@ -6,6 +6,7 @@
 		"Wall",
 		"Arrow_Marker",
 		"Question_Marker",
-		"Exclamation_Marker"
+		"Exclamation_Marker",
+		"Robot"
 	]
 }

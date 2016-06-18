@@ -15,5 +15,16 @@
 		"lua": "Base",
 		"tileset": "Offical",
 		"tileimage": "Offical_Arrow_Marker"
+	},
+	
+	"Offical_Robot_Marker_Ground": {
+		"lua": "Base",
+		"tileset": "Offical",
+		"tileimage": "Offical_Robot_Marker_Ground"
+	},
+	
+	"Offical_Robot": {
+		"lua": "Robot",
+		"tileimage": "Offical_Robot"
 	}
 }
