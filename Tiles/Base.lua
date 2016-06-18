@@ -2,7 +2,7 @@ local Class = require("Helpers.middleclass")
 local TBase = Class("tile.base")
 
 function TBase:initialize(tx,ty,tsize,rot,invertX,invertY,params)
-  self.tx, self.ty, self.ts = x or 0, y or 0, tsize or 32
+  self.tx, self.ty, self.ts = tx or 0, ty or 0, tsize or 32
   self.x, self.y = self.tx * self.ts, self.ty * self.ts
   self.rot, self.inX, self.inY = rot or 0, invertX, invertY
   self.tileset = params.tileset
@@ -13,7 +13,7 @@ end
 
 function TBase:draw()
   love.graphics.setColor(255,255,255,255)
-  love.graphics.draw(self.tileimage,self.x,self.y,self.rot,self.sx, self.sy)
+  love.graphics.draw(self.tileimage,self.x+self.ts/2,self.y+self.ts/2,self.rot,self.sx,self.sy,self.tileimage:getWidth()/2, self.tileimage:getHeight()/2)
 end
 
 function TBase:update(dt)
