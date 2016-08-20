@@ -11,11 +11,11 @@ function DT:createToolsMenu()
 end
 
 function DT:insertMenuTools()
-  if imgui.MenuItem("Logs") then ShowLogsWindow = not ShowLogsWindow end
+  if imgui.MenuItem("Logs",false,ShowLogsWindow) then ShowLogsWindow = not ShowLogsWindow end
   if _Loaded then
     imgui.MenuItem("Tiled Compiler")
   end
-  if imgui.MenuItem("Imgui Test") then ShowImguiTestWindow = not ShowImguiTestWindow end
+  if imgui.MenuItem("Imgui Test",false,ShowImguiTestWindow) then ShowImguiTestWindow = not ShowImguiTestWindow end
 end
 
 function DT:createToolsWindows()
