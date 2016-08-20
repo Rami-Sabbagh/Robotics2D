@@ -133,6 +133,8 @@ function Splash:draw()
     imgui.EndMainMenuBar()
   end
 
+  DTools:createToolsWindows()
+
   imgui.Render();
 end
 

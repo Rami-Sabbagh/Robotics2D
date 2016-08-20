@@ -40,6 +40,8 @@ function TS:draw()
     imgui.EndMainMenuBar()
   end
 
+  DTools:createToolsWindows()
+
   imgui.Render();
 end
 
