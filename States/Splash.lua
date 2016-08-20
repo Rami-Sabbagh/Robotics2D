@@ -22,7 +22,7 @@ function Splash:init()
   self.LOGO = love.graphics.newImage("Libs/Misc/RL4G_LOGO.png")
 
   self.fadingTime = 0.5
-  self.showTime = 1
+  self.showTime = 5
   Timer.add(self.fadingTime+self.showTime,function()
     if _Loaded then
       self.tween = Tweens.new(self.fadingTime,self.alpha,{0,0})
