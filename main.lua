@@ -17,72 +17,75 @@ function love.load(args)
 end
 
 function love.update(dt)
+
+  if not _DebugTools then return end
   imgui.NewFrame()
 end
 
 function love.draw()
-  print("MainDraw")
-  love.graphics.setColor(255,255,255,255)
 
-  -- Menu
-  if imgui.BeginMainMenuBar() then
-      if imgui.BeginMenu("File") then
-          imgui.MenuItem("Test")
-          imgui.EndMenu()
-      end
-      imgui.EndMainMenuBar()
-  end
-
-  imgui.Render();
 end
 
 function love.textinput(t)
-    imgui.TextInput(t)
-    if not imgui.GetWantCaptureKeyboard() then
-        -- Pass event to the game
-    end
+  if not _DebugTools then return end
+
+  imgui.TextInput(t)
+  if not imgui.GetWantCaptureKeyboard() then
+      -- Pass event to the game
+  end
 end
 
 function love.keypressed(key)
-    imgui.KeyPressed(key)
-    if not imgui.GetWantCaptureKeyboard() then
-        -- Pass event to the game
-    end
+  if not _DebugTools then return end
+
+  imgui.KeyPressed(key)
+  if not imgui.GetWantCaptureKeyboard() then
+    -- Pass event to the game
+  end
 end
 
 function love.keyreleased(key)
-    imgui.KeyReleased(key)
-    if not imgui.GetWantCaptureKeyboard() then
-        -- Pass event to the game
-    end
+  if not _DebugTools then return end
+
+  imgui.KeyReleased(key)
+  if not imgui.GetWantCaptureKeyboard() then
+      -- Pass event to the game
+  end
 end
 
 function love.mousemoved(x, y)
-    imgui.MouseMoved(x, y)
-    if not imgui.GetWantCaptureMouse() then
-        -- Pass event to the game
-    end
+  if not _DebugTools then return end
+
+  imgui.MouseMoved(x, y)
+  if not imgui.GetWantCaptureMouse() then
+      -- Pass event to the game
+  end
 end
 
 function love.mousepressed(x, y, button)
-    imgui.MousePressed(button)
-    if not imgui.GetWantCaptureMouse() then
-        -- Pass event to the game
-    end
+  if not _DebugTools then return end
+
+  imgui.MousePressed(button)
+  if not imgui.GetWantCaptureMouse() then
+      -- Pass event to the game
+  end
 end
 
 function love.mousereleased(x, y, button)
-    imgui.MouseReleased(button)
-    if not imgui.GetWantCaptureMouse() then
-        -- Pass event to the game
-    end
+  if not _DebugTools then return end
+
+  imgui.MouseReleased(button)
+  if not imgui.GetWantCaptureMouse() then
+      -- Pass event to the game
+  end
 end
 
 function love.wheelmoved(x, y)
-    imgui.WheelMoved(y)
-    if not imgui.GetWantCaptureMouse() then
-        -- Pass event to the game
-    end
+  if not _DebugTools then return end
+  imgui.WheelMoved(y)
+  if not imgui.GetWantCaptureMouse() then
+      -- Pass event to the game
+  end
 end
 
 function love.threaderror(thread, errorstr)
@@ -91,5 +94,6 @@ function love.threaderror(thread, errorstr)
 end
 
 function love.quit()
+  if not _DebugTools then return end
   imgui.ShutDown()
 end

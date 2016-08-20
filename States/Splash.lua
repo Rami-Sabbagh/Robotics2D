@@ -2,6 +2,8 @@
 local Splash = {} --(LibLoader) Shortcut--
 
 --Requirements--
+local DTools = require("Engine.DebugTools")
+
 local Gamestate = require("Helpers.hump.gamestate")
 local Timer = require("Helpers.hump.timer")
 local Tweens = require("Helpers.tween")
@@ -120,6 +122,18 @@ function Splash:draw()
   --Fade--
   love.graphics.setColor(0,0,0,self.alpha[1])
   love.graphics.rectangle("fill",0,0,_Width,_Height)
+
+  love.graphics.setColor(255,255,255,255)
+
+  if not _DebugTools then return end
+
+  -- Menu
+  if imgui.BeginMainMenuBar() then
+    DTools:createToolsMenu()
+    imgui.EndMainMenuBar()
+  end
+
+  imgui.Render();
 end
 
 function Splash:leave()
