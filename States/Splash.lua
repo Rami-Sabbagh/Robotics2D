@@ -16,7 +16,7 @@ local TSSystem = require("Engine.TilesetSystem")
 
 local Material = require("Helpers.p-mug.third-party.material-love")
 
-local NextState = require("States.Tools")
+local NextState = require("States.Workspace")
 
 function Splash:init()
   self.LOGO = love.graphics.newImage("Libs/Misc/RL4G_LOGO.png")
@@ -25,7 +25,7 @@ function Splash:init()
   self.showTime = 1
   Timer.add(self.fadingTime+self.showTime,function()
     if _Loaded then
-      self.tween = Tweens.new(self.fadingTime,self.alpha,{255})
+      self.tween = Tweens.new(self.fadingTime,self.alpha,{0,0})
       Timer.add(self.fadingTime,function() Gamestate.switch(NextState) end)
       self.exiting = true
     else
@@ -88,8 +88,8 @@ function Splash:splitFilePath(path)
 end
 
 function Splash:enter()
-  self.alpha = {255}
-  self.tween = Tweens.new(self.fadingTime,self.alpha,{0})
+  self.alpha = {255,255}
+  self.tween = Tweens.new(self.fadingTime,self.alpha,{0,255})
 
   love.graphics.setBackgroundColor(Material.colors.background("dark"))
 end
@@ -109,7 +109,7 @@ function Splash:update(dt)
 end
 
 function Splash:draw()
-  love.graphics.setColor(255,255,255,255)
+  love.graphics.setColor(255,255,255,self.alpha[2])
   love.graphics.draw(self.LOGO,_Width/2,_Height/2,0,1,1,self.LOGO:getWidth()/2,self.LOGO:getHeight()/2)
 
   local XPadding, YPadding = 20,15
@@ -129,7 +129,7 @@ function Splash:draw()
 
   -- Menu
   if imgui.BeginMainMenuBar() then
-    DTools:createToolsMenu()
+    DTools:createMenus()
     imgui.EndMainMenuBar()
   end
 

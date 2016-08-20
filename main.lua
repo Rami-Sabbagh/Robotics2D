@@ -8,6 +8,8 @@ local Gamestate = require("Helpers.hump.gamestate")
 local Splash = require("States.Splash")
 
 function love.load(args)
+  require("imgui_style")()
+
   GameSetup:init()
 
   love.graphics.setBackgroundColor(250,250,250)
