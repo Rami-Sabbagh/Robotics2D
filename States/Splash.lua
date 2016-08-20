@@ -14,29 +14,29 @@ local TSSystem = require("Engine.TilesetSystem")
 
 local Material = require("Helpers.p-mug.third-party.material-love")
 
-local DevPlay = require("States.DevPlay")
+local NextState = require("States.Tools")
 
 function Splash:init()
   self.LOGO = love.graphics.newImage("Libs/Misc/RL4G_LOGO.png")
-  
+
   self.fadingTime = 0.5
   self.showTime = 1
   Timer.add(self.fadingTime+self.showTime,function()
     if _Loaded then
       self.tween = Tweens.new(self.fadingTime,self.alpha,{255})
-      Timer.add(self.fadingTime,function() Gamestate.switch(DevPlay) end)
+      Timer.add(self.fadingTime,function() Gamestate.switch(NextState) end)
       self.exiting = true
     else
       self.allowExit = true
     end
   end)
-  
+
   self.text = "(1/3) Loading ..."
-  
+
   self.showPrecentage = "(1/3) Loading "
-  
+
   self:indexDirectory("/Libs/")
-  
+
   loader.start(function()
     self.showPrecentage = false
     self.text = "(2/3) Building Tilesets ..."
@@ -88,7 +88,7 @@ end
 function Splash:enter()
   self.alpha = {255}
   self.tween = Tweens.new(self.fadingTime,self.alpha,{0})
-  
+
   love.graphics.setBackgroundColor(Material.colors.background("dark"))
 end
 
@@ -96,12 +96,12 @@ function Splash:update(dt)
   if self.showPrecentage then
     self.text = self.showPrecentage..math.floor((loader.loadedCount / loader.resourceCount)*100).."%"
   end
-  
+
   if not _Loaded then TSSystem:update() loader.update() elseif self.allowExit and not self.exiting then
     self.tween = Tweens.new(self.fadingTime,self.alpha,{255})
     Timer.add(self.fadingTime,function() Gamestate.switch(DevPlay) end)
   end
-  
+
   self.tween:update(dt)
   Timer.update(dt)
 end
@@ -109,14 +109,14 @@ end
 function Splash:draw()
   love.graphics.setColor(255,255,255,255)
   love.graphics.draw(self.LOGO,_Width/2,_Height/2,0,1,1,self.LOGO:getWidth()/2,self.LOGO:getHeight()/2)
-  
+
   local XPadding, YPadding = 20,15
   --love.graphics.setColor(Material.colors.mono("white","button"))
   love.graphics.setColor(Material.colors.main("blue-grey"))
   love.graphics.setFont(Material.roboto.button)
   local TextWidth, TextHeight = Material.roboto.button:getWidth(self.text), Material.roboto.button:getHeight(self.text)
   love.graphics.print(self.text,_Width-(TextWidth+XPadding),_Height-(TextHeight+YPadding))
-  
+
   --Fade--
   love.graphics.setColor(0,0,0,self.alpha[1])
   love.graphics.rectangle("fill",0,0,_Width,_Height)

@@ -1,4 +1,5 @@
 local BumpDebug = require("Helpers.bump_debug")
+local Gamestate = require("Helpers.hump.gamestate")
 local Gamera = require("Helpers.gamera")
 local Tweens = require("Helpers.tween")
 local Bump = require("Helpers.bump")
@@ -13,10 +14,10 @@ function DevPlay:init()
   self.showTime = 1
 end
 
-function DevPlay:enter()
+function DevPlay:enter(prev,skiptween)
   love.graphics.setBackgroundColor(75,75,75,255)
-  
-  local mdata = TiledCompiler:compileTiled("/Tiled/Test.lua","/TiledCompileTest.lua")
+
+  --local mdata = TiledCompiler:compileTiled("/Tiled/Test.lua","/TiledCompileTest.lua")
   
   self.Map = Map(mdata)
   --[[local Map = _Maps["Level1"] Map.bump = Bump.newWorld(16) Map:robotics_init(Map.bump)
@@ -26,9 +27,9 @@ function DevPlay:enter()
   self.camera = Gamera.new(0,0,self.Map.Width*self.Map.Tilesize,self.Map.Height*self.Map.Tilesize)
   self.camera:setPosition((self.Map.Width*self.Map.Tilesize)/2, (self.Map.Height*self.Map.Tilesize)/2)
   self.camera:setScale(2.0)
-  
+
   self.alpha = {255}
-  self.tween = Tweens.new(self.fadingTime,self.alpha,{0})
+  self.tween = Tweens.new(skiptween and 0.001 or self.fadingTime,self.alpha,{0})
 end
 
 function DevPlay:draw()
@@ -36,9 +37,9 @@ function DevPlay:draw()
   self.camera:draw(function()
     self.Map:draw()
   end)
-  
+
   --LoveGlass:draw()
-  
+
   love.graphics.setColor(0,0,0,self.alpha[1])
   love.graphics.rectangle("fill",0,0,_Width,_Height)
 end
@@ -58,8 +59,13 @@ function DevPlay:update(dt)
   self.tween:update(dt)
 end
 
+function DevPlay:keyreleased()
+  local DPlay = require("States.DevPlay")
+  Gamestate.switch(DPlay,true)
+end
+
 function DevPlay:leave()
-  
+
 end
 
 return DevPlay
