@@ -1,59 +1,113 @@
---This file is part of Robotics2D--
---[[
-  * Copyright 2016 Rami Sabbagh
-  * 
-  * Licensed under the Apache License, Version 2.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  * 
-  *     http://www.apache.org/licenses/LICENSE-2.0
-  * 
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
---]]
+local LuaTable = {
+  _VERSION     = 'LuaTable v1.0.0 2016/08/26',
+  _AUTHOR      = 'RamiLego4Game',
+  _URL         = 'https://gist.github.com/RamiLego4Game/f656f5c1a118f77c3b7a08f4c65efaaf',
+  _DESCRIPTION = 'A library that converts tables to Lua code that can be saved',
+  _LICENSE     = [[
+    MIT LICENSE
 
---[[A library that can be used to covert tables to Lua files that can be saved.
+    Copyright (c) 2016 Rami Sabbagh
+
+    Permission is hereby granted, free of charge, to any person obtaining a
+    copy of this software and associated documentation files (the
+    "Software"), to deal in the Software without restriction, including
+    without limitation the rights to use, copy, modify, merge, publish,
+    distribute, sublicense, and/or sell copies of the Software, and to
+    permit persons to whom the Software is furnished to do so, subject to
+    the following conditions:
+
+    The above copyright notice and this permission notice shall be included
+    in all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+    OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+    IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+    CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+    TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+    SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+  ]]
+}
+
+--[[A library that converts tables to Lua code that can be saved.
 Since it uses Lua to save the data, It's able to save functions ! by dumping them, But they won't be readable, only loadable, unless if you decompile them.
-And moreover you can do some hand written tables with smart data generator..
-The bad thing that it's less secure .., So load the files using this Library to sandbox the files
+And moreover you can do some hand written tables with smart data generation..
+The bad thing that it's less secure (you are running code) .., So load the files using this Library to sandbox the files
 
 usage:
-luacode = LuaTable.encode(variable,funcBehave)
-luacode = LuaTable.encode_pretty(variable,funcBehave)
+luacode (string) = LuaTable.encode(<variable>,[funcBehave],[standalone])
+luacode (string) = LuaTable.encode_pretty(<variable>,[funcBehave],[standalone])
+variable = LuaTable.decode(<luacode>,[smart])
 
-variable:
-Supported types: nil,boolean,string,number,table,function,userdata
+  variable (list above):
+  Supported types: nil,boolean,string,number,table,function,userdata
 
-funcBehave:
-"dump" to dump the functions so they can be loaded again, But not recomended.
-"name" to use tostring on the function, I guess it's useless, unless if it's used to debug something like the _G var.
-"skip" (default) to skip the functions and not include them in the table.
+  funcBehave (string or nil):
+  "dump" to dump the functions so they can be loaded again, But not recomended.
+  "name" to use tostring on the function, I guess it's useless, unless if it's used to debug something like the _G var.
+  "skip" (default) to skip the functions and not include them in the table.
 
+  standalone (boolean or nil):
+  If this is true, the result code will include a function called c (short for combine) used to combine arrays with tables (to save file lenght).
+  Enable this to make the result code run without using this library.
+
+  luacode (string):
+  The code made with LuaTable library.
+
+  smart (boolean or nil):
+  To give the table code the access to some usefull gloabl libraries (like math, string, ..[list above]).
 
 example:
-local LuaTable = require("Engine.LuaTable")
-love.filesystem.write("TestTable.lua",LuaTable.encode({test=true}))
+  local LuaTable = require("LuaTable")
+  love.filesystem.write("TestTable.lua",LuaTable.encode({test=true}))
+  local TableCode = love.filesystem.read("TestTable.lua")
+  local TabelData = LuaTable.decode(TableCode)
 
-note: all Userdata variables can't be dumped so they will get dumped.
+list of available global vars for the table (Changable down):
+  Normal: pairs, ipairs, c (combine function)
+  Smart: pairs, ipairs, string, table, bit, math, c (combine function), love.math (if library is used in love with love.math enabled)
+
+note: all Userdata variables can't be dumped so they will be ignored.
 ]]
+local function combine(t1,t2) for k,v in pairs(t2) do t1[k] = v end return t1 end
 
-local LuaTable = {}
+--Config--
+local prettyTabbing = "\t"
 
-function LuaTable.encode(var,funcBehave)
-  local code = "local function combine(t1,t2) for k,v in pairs(t2) do t1[k] = v end return t1 end\nreturn "
-  local vx = "nil" if LuaTable["encode_"..type(var)] then vx = LuaTable["encode_"..type(var)](var) end
+--Change the global vars here--
+local normalGVars = {pairs=pairs,ipairs=ipairs,c=combine} --Used when smart argument is false or nil
+local smartGVars = {pairs=pairs,ipairs=ipairs,string=string,table=table,bit=bit,math=math,c=combine} --Used when smart argument is true
+if love and love.math then smartGVars.love = {math=love.math} end
+
+--Library code starts here--
+
+function LuaTable.encode(var,funcBehave,standalone)
+  if not (type(funcBehave)=="string" or type(funcBehave)=="nil") then return error("Bad argument #2 to 'LuaTable.encode' (string/nil expected, got"..type(funcBehave)..")") end
+  if not (type(standalone)=="boolean" or type(standalone)=="nil") then return error("Bad argument #3 to 'LuaTable.encode' (boolean/nil expected, got"..type(funcBehave)..")") end
+  local code = "return "
+  if standalone then code = "local function c(t1,t2) for k,v in pairs(t2) do t1[k] = v end return t1 end\n"..code end
+  local vx = "nil" if LuaTable["encode_"..type(var)] then vx = LuaTable["encode_"..type(var)](var) else print("[LuaTable] Warning, LuaTable doesn't support "..type(var)) end
   code = code..vx
   return code
 end
 
-function LuaTable.encode_pretty(var,funcBehave)
-  local code = "local function combine(t1,t2)\n   for k,v in pairs(t2) do\n      t1[k] = v\n   end\n   return t1\nend\n\nreturn "
-  local vx = "nil" if LuaTable["encode_"..type(var)] then vx = LuaTable["encode_"..type(var)](var,"   ",funcBehave) end
+function LuaTable.encode_pretty(var,funcBehave,standalone)
+  if not (type(funcBehave)=="string" or type(funcBehave)=="nil") then return error("Bad argument #2 to 'LuaTable.encode_pretty' (string/nil expected, got"..type(funcBehave)..")") end
+  if not (type(standalone)=="boolean" or type(standalone)=="nil") then return error("Bad argument #3 to 'LuaTable.encode_pretty' (boolean/nil expected, got"..type(funcBehave)..")") end
+  local code = "return "
+  if standalone then code = "local function c(t1,t2)\n   for k,v in pairs(t2) do\n      t1[k] = v\n   end\n   return t1\nend\n\n"..code end
+  local vx = "nil" if LuaTable["encode_"..type(var)] then vx = LuaTable["encode_"..type(var)](var,prettyTabbing,funcBehave) else print("[LuaTable] Warning, LuaTable doesn't support "..type(var)) end
   code = code..vx
   return code
+end
+
+function LuaTable.decode(codeString,smart)
+  if not (type(codeString)=="string") then return error("Bad argument #1 to 'LuaTable.decode' (string expected, got"..type(codeString)..")") end
+  if not (type(smart)=="boolean" or type(smart)=="nil") then return error("Bad argument #2 to 'LuaTable.decode' (boolean/nil expected, got"..type(smart)..")") end
+  local function combine(t1,t2) for k,v in pairs(t2) do t1[k] = v end return t1 end
+  local codeFunc = loadstring(code)
+  if smart then setfenv(codeFunc,smartGVars) else setfenv(codeFunc,normalGVars) end
+  return codeFunc()
 end
 
 function LuaTable.isArray(table)
@@ -65,22 +119,21 @@ function LuaTable.isArray(table)
   return true
 end
 
----
---Here you can add your own variable types.
---Array is a numeric table.
+--[[Here you can add your own variable types.
+Array is a numeric table.]]
 
 function LuaTable.encode_array(table,pretty,funcBehave)
   local s = "{"
   for i=1,#table do
     if pretty then
-      local vx = "nil" if LuaTable["encode_"..type(table[i])] then vx = LuaTable["encode_"..type(table[i])](table[i],pretty.."   ",funcBehave) end
+      local vx = "nil" if LuaTable["encode_"..type(table[i])] then vx = LuaTable["encode_"..type(table[i])](table[i],pretty.."   ",funcBehave) else print("[LuaTable] Warning, LuaTable doesn't support "..type(var)) end
       if i==1 then
         s = s..pretty..vx
       else
         s = s..",\n"..pretty..vx
       end
     else
-      local vx = "nil" if LuaTable["encode_"..type(table[i])] then vx = LuaTable["encode_"..type(table[i])](table[i],nil,funcBehave) end
+      local vx = "nil" if LuaTable["encode_"..type(table[i])] then vx = LuaTable["encode_"..type(table[i])](table[i],nil,funcBehave) else print("[LuaTable] Warning, LuaTable doesn't support "..type(var)) end
       if i==1 then
         s = s..vx
       else
@@ -97,7 +150,7 @@ function LuaTable.encode_table(table,pretty,funcBehave)
   local s = "{"
   for k,v in pairs(table) do
     if pretty then
-      local vx = "nil" if LuaTable["encode_"..type(v)] then vx = LuaTable["encode_"..type(v)](v,pretty.."   ",funcBehave) end
+      local vx = "nil" if LuaTable["encode_"..type(v)] then vx = LuaTable["encode_"..type(v)](v,pretty.."   ",funcBehave) else print("[LuaTable] Warning, LuaTable doesn't support "..type(var)) end
       if type(k) == "number" then
         nums[k] = v
       elseif first then
@@ -107,7 +160,7 @@ function LuaTable.encode_table(table,pretty,funcBehave)
         s = s..",\n"..pretty..tostring(k).." = "..vx
       end
     else
-      local vx = "nil" if LuaTable["encode_"..type(v)] then vx = LuaTable["encode_"..type(v)](v,nil,funcBehave) end
+      local vx = "nil" if LuaTable["encode_"..type(v)] then vx = LuaTable["encode_"..type(v)](v,nil,funcBehave) else print("[LuaTable] Warning, LuaTable doesn't support "..type(var)) end
       if type(k) == "number" then
         nums[k] = v
       elseif first then
@@ -120,9 +173,9 @@ function LuaTable.encode_table(table,pretty,funcBehave)
   end
   if #nums > 0 then
     if pretty then
-      s = "combine("..s.."},"..LuaTable.encode_array(nums,pretty.."   ")..")"
+      s = "c("..s.."},"..LuaTable.encode_array(nums,pretty.."   ")..")"
     else
-      s = "combine("..s.."},"..LuaTable.encode_array(nums)..")"
+      s = "c("..s.."},"..LuaTable.encode_array(nums)..")"
     end
   else
     s = s.."}"
