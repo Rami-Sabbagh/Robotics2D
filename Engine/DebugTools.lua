@@ -5,6 +5,8 @@ local FPSSize = 1000
 local FPS = {}
 for i=1, FPSSize do FPS[i] = 0 end
 
+local ShowTCWindow = false
+
 local ShowLogsWindow = false
 local ShowFPSOverlay = false
 local ShowImguiDemoWindow = false
@@ -20,8 +22,16 @@ function DT:updateFPS(fps)
 end
 
 function DT:createMenus()
+  if _Loaded then self:createGameMenu() end
   self:createToolsMenu()
   self:createDebugMenu()
+end
+
+function DT:createGameMenu()
+  if imgui.BeginMenu("Game") then
+      self:insertMenuGames()
+      imgui.EndMenu()
+  end
 end
 
 function DT:createToolsMenu()
@@ -38,9 +48,13 @@ function DT:createDebugMenu()
   end
 end
 
+function DT:insertMenuGames()
+  imgui.MenuItem("Load")
+end
+
 function DT:insertMenuTools()
   if _Loaded then
-    imgui.MenuItem("Tiled Compiler")
+    if imgui.MenuItem("Tiled Compiler",false,ShowTCWindow) then ShowTCWindow = not ShowTCWindow end
   end
 end
 
@@ -50,7 +64,20 @@ function DT:insertMenuDebugs()
   if imgui.MenuItem("Imgui Demo",false,ShowImguiDemoWindow) then ShowImguiDemoWindow = not ShowImguiDemoWindow end
 end
 
+function DT:createWindows()
+  self:createToolsWindows()
+  self:createDebugWindows()
+end
+
 function DT:createToolsWindows()
+  if ShowTCWindow then
+    imgui.Begin("Tiled Compiler")
+
+    imgui.End()
+  end
+end
+
+function DT:createDebugWindows()
   if ShowImguiDemoWindow then
     ShowImguiDemoWindow = imgui.ShowTestWindow(true)
   end
