@@ -1,5 +1,5 @@
 local LuaTable = {
-  _VERSION     = 'LuaTable v1.0.0 2016/08/26',
+  _VERSION     = 'LuaTable v1.0.1 2016/08/27',
   _AUTHOR      = 'RamiLego4Game',
   _URL         = 'https://gist.github.com/RamiLego4Game/f656f5c1a118f77c3b7a08f4c65efaaf',
   _DESCRIPTION = 'A library that converts tables to Lua code that can be saved',
@@ -69,6 +69,17 @@ list of available global vars for the table (Changable down):
 
 note: all Userdata variables can't be dumped so they will be ignored.
 ]]
+
+--[[Changelog:
+
+2016/08/07 V1.0.1: All Credit goes to ivan [In Love2D forums] for this update
+1. Fixed a problem in LuaTable.isArray that causes arrays with gaps to encode as normal table.
+2. Improved LuaTable.encode_string to use string.format instead of multiline string.
+
+2016/08/26 V1.0.0: First Public Release
+
+]]
+
 local function combine(t1,t2) for k,v in pairs(t2) do t1[k] = v end return t1 end
 
 --Config--
@@ -110,13 +121,12 @@ function LuaTable.decode(codeString,smart)
   return codeFunc()
 end
 
-function LuaTable.isArray(table)
-  for k,v in pairs(table) do
-    if type(k) ~= "number" then
-      return false
-    end
+function LuaTable.isArray(tabl)
+  local n = 0
+  for _ in pairs(tabl) do
+	n = n + 1
   end
-  return true
+  return #tabl == n
 end
 
 --[[Here you can add your own variable types.
@@ -198,8 +208,8 @@ function LuaTable.encode_nil()
   return "nil"
 end
 
-function LuaTable.encode_string(string)
-  return '[['..tostring(string)..']]'
+function LuaTable.encode_string(str)
+  return string.format("%q", str)
 end
 
 function LuaTable.encode_number(number)
