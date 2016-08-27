@@ -22,7 +22,7 @@ function Splash:init()
   self.LOGO = love.graphics.newImage("Libs/Misc/RL4G_LOGO.png")
 
   self.fadingTime = 0.5
-  self.showTime = 5
+  self.showTime = 2
   Timer.add(self.fadingTime+self.showTime,function()
     if _Loaded then
       self.tween = Tweens.new(self.fadingTime,self.alpha,{0,0})
@@ -34,7 +34,6 @@ function Splash:init()
   end)
 
   self.text = "(1/3) Loading ..."
-
   self.showPrecentage = "(1/3) Loading "
 
   self:indexDirectory("/Libs/")
@@ -133,7 +132,7 @@ function Splash:draw()
     imgui.EndMainMenuBar()
   end
 
-  DTools:createToolsWindows()
+  DTools:createWindows()
 
   imgui.Render();
 end

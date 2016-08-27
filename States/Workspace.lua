@@ -37,7 +37,7 @@ function WS:draw()
     imgui.EndMainMenuBar()
   end
 
-  DTools:createToolsWindows()
+  DTools:createWindows()
 
   imgui.Render();
 end
