@@ -116,7 +116,7 @@ function LuaTable.decode(codeString,smart)
   if not (type(codeString)=="string") then return error("Bad argument #1 to 'LuaTable.decode' (string expected, got"..type(codeString)..")") end
   if not (type(smart)=="boolean" or type(smart)=="nil") then return error("Bad argument #2 to 'LuaTable.decode' (boolean/nil expected, got"..type(smart)..")") end
   local function combine(t1,t2) for k,v in pairs(t2) do t1[k] = v end return t1 end
-  local codeFunc = loadstring(code)
+  local codeFunc = loadstring(codeString)
   if smart then setfenv(codeFunc,smartGVars) else setfenv(codeFunc,normalGVars) end
   return codeFunc()
 end

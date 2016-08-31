@@ -5,14 +5,18 @@ local FPSSize = 1000
 local FPS = {}
 for i=1, FPSSize do FPS[i] = 0 end
 
+local ShowLSWindow = false
+local SelectedLSFile = 0
+local LSFiles = {}
+
+local ShowTCWindow = false
 local TCompiler = require("Engine.TiledCompiler")
 local CurrentTCState = "Select A map to\nshow info"
-local ShowTCWindow = false
 local SelectedTCFile = 0
 local TCFiles = {}
 
 local ShowLogsWindow = false
-local ShowFPSOverlay = false
+local ShowFPSOverlay = true
 local ShowImguiDemoWindow = false
 
 function DT:updateFPS(fps)
@@ -38,6 +42,17 @@ function DT:updateTCFilesList()
     if e == "lua" then
       --PMug.Shape[n] = require(string.gsub(path..n,"/","%."))
       table.insert(TCFiles,n)
+    end
+  end
+end
+
+function DT:updateLSFilesList()
+  SelectedLSFile = 0 LSFiles = {}
+  local files = love.filesystem.getDirectoryItems("/TiledBuilds/")
+  for k,filename in ipairs(files) do
+    local p, n, e = DT:splitFilePath("/TiledBuilds/"..filename)
+    if e == "lua" then
+      table.insert(LSFiles,n)
     end
   end
 end
@@ -83,7 +98,7 @@ function DT:createDebugMenu()
 end
 
 function DT:insertMenuGames()
-  imgui.MenuItem("Load")
+  if imgui.MenuItem("Load",false,ShowLSWindow) then ShowLSWindow = not ShowLSWindow end
   if imgui.IsItemHovered() then imgui.SetTooltip("Loads a compiled level") end
   if imgui.MenuItem("Exit") then love.event.quit() end
   if imgui.IsItemHovered() then imgui.SetTooltip("Closes the game") end
@@ -138,6 +153,41 @@ function DT:createToolsWindows()
 
     imgui.End()
   end
+
+  if ShowLSWindow then
+    imgui.SetNextWindowPos(25,45, "FirstUseEver")
+    imgui.SetNextWindowSize(430, 240, "FirstUseEver")
+    imgui.Begin("Load Level",_,{"NoResize","NoSavedSettings"})
+    local LBChanged
+    LBChanged, SelectedLSFile = imgui.ListBox("###LSFilesList",SelectedLSFile,LSFiles,#LSFiles,10)
+    if LBChanged then
+
+    end
+
+    imgui.Separator()
+    if imgui.Button("Refresh") then
+      self:updateLSFilesList()
+    end
+    if imgui.IsItemHovered() then imgui.SetTooltip("Refreshes the list of the levels") end
+
+    imgui.SameLine()
+    if imgui.Button("Load") then
+      if SelectedLSFile == 0 then return end
+      local WS = require("States.Workspace")
+      WS:loadMap("/TiledBuilds/"..LSFiles[SelectedLSFile])
+    end
+    if imgui.IsItemHovered() then imgui.SetTooltip("Loads the selected level") end
+
+    imgui.SameLine()
+    if imgui.Button("Delete") then
+      if SelectedLSFile == 0 then return end
+      love.filesystem.remove("/TiledBuilds/"..LSFiles[SelectedLSFile])
+      self:updateLSFilesList()
+    end
+    if imgui.IsItemHovered() then imgui.SetTooltip("Deletes the selected level") end
+
+    imgui.End()
+  end
 end
 
 function DT:createDebugWindows()
@@ -158,5 +208,6 @@ function DT:createDebugWindows()
 end
 
 DT:updateTCFilesList()
+DT:updateLSFilesList()
 
 return DT

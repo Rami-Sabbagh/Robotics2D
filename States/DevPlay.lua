@@ -10,15 +10,15 @@ local TiledCompiler = require("Engine.TiledCompiler")
 local DevPlay = {}
 
 function DevPlay:init()
-  self.fadingTime = 0.5
-  self.showTime = 1
+  --self.fadingTime = 0.5
+  --self.showTime = 1
 end
 
 function DevPlay:enter(prev,skiptween)
   love.graphics.setBackgroundColor(75,75,75,255)
 
   --local mdata = TiledCompiler:compileTiled("/Tiled/Test.lua","/TiledCompileTest.lua")
-  
+
   self.Map = Map(mdata)
   --[[local Map = _Maps["Level1"] Map.bump = Bump.newWorld(16) Map:robotics_init(Map.bump)
   self.camera = Gamera.new(0,0,Map.width*Map.tilewidth,Map.height*Map.tileheight)
