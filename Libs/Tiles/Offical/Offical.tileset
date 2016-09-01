@@ -7,6 +7,15 @@
 		"Arrow_Marker",
 		"Question_Marker",
 		"Exclamation_Marker",
-		"Robot"
+		"Robot",
+		"Empty_Box_Marker",
+		"Filled_Box_Marker",
+		"ToggleTile_Marker",
+		"Wire_Line",
+		"Wire_Turn",
+		"WallButton_Base",
+		"WallButton_Down",
+		"WallButton_Up",
+		"Box"
 	]
 }
