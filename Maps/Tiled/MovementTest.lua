@@ -16,7 +16,7 @@ return {
       spacing = 0,
       margin = 0,
       image = "../../../../../AppData/Roaming/LOVE/Robotics2D/TSB/Offical.png",
-      imagewidth = 64,
+      imagewidth = 128,
       imageheight = 128,
       properties = {},
       tiles = {}

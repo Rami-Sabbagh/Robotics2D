@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.0" orientation="orthogonal" width="12" height="12" tilewidth="32" tileheight="32">
  <tileset firstgid="1" name="Offical" tilewidth="32" tileheight="32">
-  <image source="../../../../../AppData/Roaming/LOVE/Robotics2D/TSB/Offical.png" width="64" height="128"/>
+  <image source="../../../../../AppData/Roaming/LOVE/Robotics2D/TSB/Offical.png" width="128" height="128"/>
  </tileset>
  <layer name="Ground" width="12" height="12">
   <data>
