@@ -5,7 +5,10 @@ local FPSSize = 1000
 local FPS = {}
 for i=1, FPSSize do FPS[i] = 0 end
 
-local ShowLSWindow = false
+local TiledPath = "/Maps/Tiled/"
+local MapsPath = "/TiledBuilds/"
+
+--[[local ShowLSWindow = false
 local SelectedLSFile = 0
 local LSFiles = {}
 
@@ -13,11 +16,23 @@ local ShowTCWindow = false
 local TCompiler = require("Engine.TiledCompiler")
 local CurrentTCState = "Select A map to\nshow info"
 local SelectedTCFile = 0
-local TCFiles = {}
+local TCFiles = {}]]
+
+local ShowLSWindow = false
+local CurrentLSState = "Select A map to\nshow info"
+
+local SelectedLevelID = 0
+local LevelsList = {}
+local LevelsFileNames = {}
+local TiledFileNames = {}
+local CompiledFileNames = {}
+
 
 local ShowLogsWindow = false
 local ShowFPSOverlay = true
 local ShowImguiDemoWindow = false
+
+local TCompiler = require("Engine.TiledCompiler")
 
 function DT:updateFPS(fps)
   for k, v in ipairs(FPS) do
@@ -33,7 +48,7 @@ function DT:splitFilePath(path)
   return path:match("(.-)([^\\/]-%.?([^%.\\/]*))$")
 end
 
-function DT:updateTCFilesList()
+--[[function DT:updateTCFilesList()
   SelectedTCFile = 0 TCFiles = {}
   local files = love.filesystem.getDirectoryItems("/Maps/Tiled/")
   for k,filename in ipairs(files) do
@@ -55,6 +70,47 @@ function DT:updateLSFilesList()
       table.insert(LSFiles,n)
     end
   end
+end]]
+
+function DT:refreshLevelsList()
+  SelectedLevelID, LevelsList, LevelsFileNames, TiledFileNames, CompiledFileNames = 0, {}, {}, {}, {} --Reset the lists
+
+  --Index tiled exported maps
+  local files = love.filesystem.getDirectoryItems(TiledPath)
+  for k,filename in ipairs(files) do
+    local p, n, e = DT:splitFilePath(TiledPath..filename)
+    if e == "lua" then
+      TiledFileNames[n] = TiledPath..n
+    end
+  end
+
+  --Index tiled compiled maps
+  local files = love.filesystem.getDirectoryItems(MapsPath)
+  for k,filename in ipairs(files) do
+    local p, n, e = DT:splitFilePath(MapsPath..filename)
+    if e == "lua" then
+      CompiledFileNames[n] = MapsPath..n
+    end
+  end
+
+  --Add the tiled levels to the list
+  for filename, path in pairs(TiledFileNames) do
+    if CompiledFileNames[filename] then
+      table.insert(LevelsFileNames,filename)
+      table.insert(LevelsList,filename:sub(0,-5).." [Built]")
+    else
+      table.insert(LevelsFileNames,filename)
+      table.insert(LevelsList,filename:sub(0,-5).." [Tiled]")
+    end
+  end
+
+  --Add the compiled only levels to the list
+  for filename, path in pairs(CompiledFileNames) do
+    if not TiledFileNames[filename] then
+      table.insert(LevelsFileNames,filename)
+      table.insert(LevelsList,filename:sub(0,-5).." [Build Only]")
+    end
+  end
 end
 
 function DT:gatherTMapInfo(path)
@@ -72,7 +128,7 @@ end
 
 function DT:createMenus()
   if _Loaded then self:createGameMenu() end
-  self:createToolsMenu()
+  --self:createToolsMenu()
   self:createDebugMenu()
 end
 
@@ -83,12 +139,12 @@ function DT:createGameMenu()
   end
 end
 
-function DT:createToolsMenu()
+--[[function DT:createToolsMenu()
   if imgui.BeginMenu("Tools") then
       self:insertMenuTools()
       imgui.EndMenu()
   end
-end
+end]]
 
 function DT:createDebugMenu()
   if imgui.BeginMenu("Debug") then
@@ -104,12 +160,12 @@ function DT:insertMenuGames()
   if imgui.IsItemHovered() then imgui.SetTooltip("Closes the game") end
 end
 
-function DT:insertMenuTools()
+--[[function DT:insertMenuTools()
   if _Loaded then
     if imgui.MenuItem("Tiled Compiler",false,ShowTCWindow) then ShowTCWindow = not ShowTCWindow end
     if imgui.IsItemHovered() then imgui.SetTooltip("Compiles Tiled Maps To Game's Format") end
   end
-end
+end]]
 
 function DT:insertMenuDebugs()
   if imgui.MenuItem("Logs",false,ShowLogsWindow) then ShowLogsWindow = not ShowLogsWindow end
@@ -121,12 +177,13 @@ function DT:insertMenuDebugs()
 end
 
 function DT:createWindows()
-  self:createToolsWindows()
+  --self:createToolsWindows()
+  self:createGameWindows()
   self:createDebugWindows()
 end
 
 function DT:createToolsWindows()
-  if ShowTCWindow then
+  --[[if ShowTCWindow then
     imgui.SetNextWindowPos(25,45, "FirstUseEver")
     imgui.SetNextWindowSize(430, 240, "FirstUseEver")
     imgui.Begin("Tiled Compiler",_,{"NoResize","NoSavedSettings"})
@@ -159,7 +216,7 @@ function DT:createToolsWindows()
     imgui.SetNextWindowSize(430, 240, "FirstUseEver")
     imgui.Begin("Load Level",_,{"NoResize","NoSavedSettings"})
     local LBChanged
-    LBChanged, SelectedLSFile = imgui.ListBox("###LSFilesList",SelectedLSFile,LSFiles,#LSFiles,10)
+    LBChanged, SelectedLS = imgui.ListBox("###LSFilesList",SelectedLSFile,LSFiles,#LSFiles,10)
     if LBChanged then
 
     end
@@ -187,6 +244,52 @@ function DT:createToolsWindows()
     if imgui.IsItemHovered() then imgui.SetTooltip("Deletes the selected level") end
 
     imgui.End()
+  end]]
+end
+
+function DT:createGameWindows()
+  if ShowLSWindow then
+    --imgui.SetNextWindowPos(25,45, "FirstUseEver")
+    imgui.SetNextWindowSize(430, 240, "FirstUseEver")
+    imgui.Begin("Load Level")--,_,{"NoResize","NoSavedSettings"})
+    local LBChanged
+    LBChanged, SelectedLevelID = imgui.ListBox(CurrentLSState.."###LSFilesList",SelectedLevelID,LevelsList,#LevelsList,10)
+    if LBChanged then
+      if TiledFileNames[LevelsFileNames[SelectedLevelID]] then
+        CurrentLSState = DT:gatherTMapInfo(TiledFileNames[LevelsFileNames[SelectedLevelID]])
+      else
+        CurrentLSState = "This level has\nno tiled map\nsource file."
+      end
+    end
+
+    imgui.Separator()
+    if imgui.Button("Refresh") then
+      --self:updateLSFilesList()
+      self:refreshLevelsList()
+    end
+    if imgui.IsItemHovered() then imgui.SetTooltip("Refreshes the list of the levels") end
+
+    imgui.SameLine()
+    if imgui.Button("Load") then
+      if SelectedLevelID == 0 then CurrentLSState = "Please select a\nlevel first." return end
+      if not CompiledFileNames[LevelsFileNames[SelectedLevelID]] then --Automatically compiles the level
+        TCompiler:compileTiled(TiledFileNames[LevelsFileNames[SelectedLevelID]],MapsPath..LevelsFileNames[SelectedLevelID])
+        CompiledFileNames[LevelsFileNames[SelectedLevelID]] = MapsPath..LevelsFileNames[SelectedLevelID]
+      end
+      local WS = require("States.Workspace")
+      WS:loadMap(CompiledFileNames[LevelsFileNames[SelectedLevelID]])
+    end
+    if imgui.IsItemHovered() then imgui.SetTooltip("Loads the selected level") end
+
+    imgui.SameLine()
+    if imgui.Button("Delete Build") then
+      if SelectedLSFile == 0 then return end
+      love.filesystem.remove("/TiledBuilds/"..LSFiles[SelectedLSFile])
+      self:updateLSFilesList()
+    end
+    if imgui.IsItemHovered() then imgui.SetTooltip("Deletes the selected level") end
+
+    imgui.End()
   end
 end
 
@@ -207,7 +310,8 @@ function DT:createDebugWindows()
   end
 end
 
-DT:updateTCFilesList()
-DT:updateLSFilesList()
+--DT:updateTCFilesList()
+--DT:updateLSFilesList()
+DT:refreshLevelsList()
 
 return DT
