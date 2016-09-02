@@ -1,34 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" width="12" height="12" tilewidth="32" tileheight="32">
+<map version="1.0" orientation="orthogonal" width="12" height="10" tilewidth="32" tileheight="32">
  <tileset firstgid="1" name="Offical" tilewidth="32" tileheight="32">
   <image source="../../../../../AppData/Roaming/LOVE/Robotics2D/TSB/Offical.png" width="128" height="128"/>
  </tileset>
- <layer name="Ground" width="12" height="12">
+ <layer name="Ground" width="12" height="10">
   <data>
-   <tile gid="1"/>
-   <tile gid="1"/>
-   <tile gid="1"/>
-   <tile gid="1"/>
-   <tile gid="1"/>
-   <tile gid="1"/>
-   <tile gid="1"/>
-   <tile gid="1"/>
-   <tile gid="1"/>
-   <tile gid="1"/>
-   <tile gid="1"/>
-   <tile gid="1"/>
-   <tile gid="1"/>
-   <tile gid="1"/>
-   <tile gid="1"/>
-   <tile gid="1"/>
-   <tile gid="1"/>
-   <tile gid="1"/>
-   <tile gid="1"/>
-   <tile gid="1"/>
-   <tile gid="1"/>
-   <tile gid="1"/>
-   <tile gid="1"/>
-   <tile gid="1"/>
    <tile gid="1"/>
    <tile gid="1"/>
    <tile gid="1"/>
@@ -151,7 +127,7 @@
    <tile gid="1"/>
   </data>
  </layer>
- <layer name="Markers" width="12" height="12">
+ <layer name="Markers" width="12" height="10">
   <data>
    <tile gid="0"/>
    <tile gid="0"/>
@@ -176,30 +152,6 @@
    <tile gid="0"/>
    <tile gid="3221225476"/>
    <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="4"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="1610612740"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="2684354564"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="4"/>
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="4"/>
@@ -299,7 +251,7 @@
    <tile gid="0"/>
   </data>
  </layer>
- <layer name="Walls" width="12" height="12">
+ <layer name="Walls" width="12" height="10">
   <data>
    <tile gid="3"/>
    <tile gid="3"/>
@@ -312,30 +264,6 @@
    <tile gid="3"/>
    <tile gid="3"/>
    <tile gid="3"/>
-   <tile gid="3"/>
-   <tile gid="3"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="3"/>
-   <tile gid="3"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
    <tile gid="3"/>
    <tile gid="3"/>
    <tile gid="0"/>
@@ -447,32 +375,8 @@
    <tile gid="3"/>
   </data>
  </layer>
- <layer name="Entities" width="12" height="12">
+ <layer name="Entities" width="12" height="10">
   <data>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
