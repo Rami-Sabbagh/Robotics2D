@@ -108,7 +108,7 @@ function DT:refreshLevelsList()
   for filename, path in pairs(CompiledFileNames) do
     if not TiledFileNames[filename] then
       table.insert(LevelsFileNames,filename)
-      table.insert(LevelsList,filename:sub(0,-5).." [Build Only]")
+      table.insert(LevelsList,filename:sub(0,-5).." [Smart]")
     end
   end
 end
@@ -154,7 +154,7 @@ function DT:createDebugMenu()
 end
 
 function DT:insertMenuGames()
-  if imgui.MenuItem("Load",false,ShowLSWindow) then ShowLSWindow = not ShowLSWindow end
+  if imgui.MenuItem("Load",false,ShowLSWindow) then ShowLSWindow = not ShowLSWindow; CurrentLSState = "Select A map to\nshow info" end
   if imgui.IsItemHovered() then imgui.SetTooltip("Loads a compiled level") end
   if imgui.MenuItem("Exit") then love.event.quit() end
   if imgui.IsItemHovered() then imgui.SetTooltip("Closes the game") end
@@ -264,7 +264,7 @@ function DT:createGameWindows()
 
     imgui.Separator()
     if imgui.Button("Refresh") then
-      --self:updateLSFilesList()
+      CurrentLSState = "Refreshed MapsList\n\nSelect A map to\nshow info"
       self:refreshLevelsList()
     end
     if imgui.IsItemHovered() then imgui.SetTooltip("Refreshes the list of the levels") end
@@ -275,19 +275,32 @@ function DT:createGameWindows()
       if not CompiledFileNames[LevelsFileNames[SelectedLevelID]] then --Automatically compiles the level
         TCompiler:compileTiled(TiledFileNames[LevelsFileNames[SelectedLevelID]],MapsPath..LevelsFileNames[SelectedLevelID])
         CompiledFileNames[LevelsFileNames[SelectedLevelID]] = MapsPath..LevelsFileNames[SelectedLevelID]
+        LevelsList[SelectedLevelID] = LevelsFileNames[SelectedLevelID]:sub(0,-5).." [Auto Built]"
       end
       local WS = require("States.Workspace")
       WS:loadMap(CompiledFileNames[LevelsFileNames[SelectedLevelID]])
+      CurrentLSState = "Level loaded\nsuccessfully"
     end
     if imgui.IsItemHovered() then imgui.SetTooltip("Loads the selected level") end
 
     imgui.SameLine()
-    if imgui.Button("Delete Build") then
-      if SelectedLSFile == 0 then return end
-      love.filesystem.remove("/TiledBuilds/"..LSFiles[SelectedLSFile])
-      self:updateLSFilesList()
+    if imgui.Button("Build Map") then
+      if SelectedLSFile == 0 then CurrentLSState = "Please select a\nlevel first." return end
+      if not TiledFileNames[LevelsFileNames[SelectedLevelID]] then CurrentLSState = "This isn't a\n tiled map tobuild" return end
+      TCompiler:compileTiled(TiledFileNames[LevelsFileNames[SelectedLevelID]],MapsPath..LevelsFileNames[SelectedLevelID])
+      CompiledFileNames[LevelsFileNames[SelectedLevelID]] = MapsPath..LevelsFileNames[SelectedLevelID]
+      LevelsList[SelectedLevelID] = LevelsFileNames[SelectedLevelID]:sub(0,-5).." [New Build]"
+      CurrentLSState = "Map built\nsuccessfully\n\nSelect A map to\nshow info"
     end
-    if imgui.IsItemHovered() then imgui.SetTooltip("Deletes the selected level") end
+
+    imgui.SameLine()
+    if imgui.Button("Delete Build")  then
+      if SelectedLSFile == 0 then CurrentLSState = "Please select a\nlevel first." return end
+      if not TiledFileNames[LevelsFileNames[SelectedLevelID]] then CurrentLSState = "This isn't a\n tiled map build" return end
+      love.filesystem.remove(CompiledFileNames[LevelsFileNames[SelectedLevelID]])
+      self:refreshLevelsList() CurrentLSState = "Map Build Deleted\n\nSelect A map to\nshow info"
+    end
+    if imgui.IsItemHovered() then imgui.SetTooltip("Deletes the selected level build") end
 
     imgui.End()
   end
