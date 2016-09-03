@@ -64,6 +64,7 @@ function SetupGame:init()
 
   if not love.filesystem.exists("/TSB") then love.filesystem.createDirectory("/TSB") end --Tilesets Builds
   if not love.filesystem.exists("/TiledBuilds") then love.filesystem.createDirectory("/TiledBuilds") end
+  if not love.filesystem.exists("/RobotPrograms") then love.filesystem.createDirectory("/RobotPrograms") end
   if not love.filesystem.exists("/Screenshots") then love.filesystem.createDirectory("/Screenshots") end
 end
 
