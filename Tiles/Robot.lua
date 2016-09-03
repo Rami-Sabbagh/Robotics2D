@@ -9,8 +9,9 @@ local RobotTile = Class("tile.robot",TBase)
 
 function RobotTile:initialize(tx,ty,tsize,rot,invertX,invertY,params)
   TBase.initialize(self,tx,ty,tsize,rot,invertX,invertY,params)
+  self.startTX, self.startTY, self.startRot = tx, ty, rot
   self.command = ""
-  self:loadCode(love.filesystem.load("/robotprogram.lua"))
+  --self:loadCode(love.filesystem.load("/robotprogram.lua"))
   self.tickTimer = 0
   self.tickTime = 0.25
   self.rot = math.deg(self.rot)
@@ -36,7 +37,7 @@ function RobotTile:update(dt)
     if self.rot % 90 ~= 0 then self.rot = self.rot-(self.rot % 90) end
     self:tick(dt)
   end
-  
+
   --[[self.tickTimer = self.tickTimer + dt
   if self.tickTimer > self.tickTime then
     self.tickTimer = 0
@@ -78,13 +79,16 @@ function RobotTile:tick(dt)
 end
 
 function RobotTile:resume()
+  if not self.co then return end
   self.comamnd = ""
   local ok, command = coroutine.resume(self.co)
   if not ok then error(command) end
   self.command = command or "stop"
 end
 
-function RobotTile:loadCode(code)
+function RobotTile:loadCode(code,dontReset)
+  self.tx, self.ty, self.command, self.tween = self.startTX, self.startTY, "", Tweens.new(self.tickTime,self,{})
+  if not dontReset then self.x, self.y, self.rot = self.tx*self.ts, self.ty*self.ts, math.deg(self.startRot) end
   local fenvG = {loadstring=loadstring,assert=assert,tostring=tostring,tonumber=tonumber,xpcall=xpcall,ipairs=ipairs,print=printS,pcall=pcall,pairs=pairs,bit=bit,error=error,unpack=unpack,_VERSION=_VERSION,next=next,math=math,select=select,select=select,type=type,coroutine=coroutine,table=table,string=string,robot=RobotAPI}
   setfenv(code,fenvG)
   self.co = coroutine.create(code)
