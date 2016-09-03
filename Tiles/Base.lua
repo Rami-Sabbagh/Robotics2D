@@ -13,15 +13,15 @@ end
 
 function TBase:draw()
   love.graphics.setColor(255,255,255,255)
-  love.graphics.draw(self.tileimage,self.x+self.ts/2,self.y+self.ts/2,self.rot,self.sx,self.sy,self.tileimage:getWidth()/2, self.tileimage:getHeight()/2)
+  love.graphics.draw(self.tileimage,self.x+self.ts/2,self.y+self.ts/2,self.rot,invertX and -self.sx or self.sx,invertY and -self.sy or self.sy,self.tileimage:getWidth()/2, self.tileimage:getHeight()/2)
 end
 
 function TBase:update(dt)
-  
+
 end
 
 function TBase:buildSpritebatch()
-  
+
 end
 
 return TBase
