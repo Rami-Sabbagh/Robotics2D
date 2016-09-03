@@ -7,16 +7,7 @@ for i=1, FPSSize do FPS[i] = 0 end
 
 local TiledPath = "/Maps/Tiled/"
 local MapsPath = "/TiledBuilds/"
-
---[[local ShowLSWindow = false
-local SelectedLSFile = 0
-local LSFiles = {}
-
-local ShowTCWindow = false
-local TCompiler = require("Engine.TiledCompiler")
-local CurrentTCState = "Select A map to\nshow info"
-local SelectedTCFile = 0
-local TCFiles = {}]]
+local RCPath = "/RobotPrograms/"
 
 local ShowLSWindow = false
 local CurrentLSState = "Select A map to\nshow info"
@@ -27,6 +18,11 @@ local LevelsFileNames = {}
 local TiledFileNames = {}
 local CompiledFileNames = {}
 
+local ShowCEWindow = false
+local RCFiles = {} --Robot Code Files
+local RCFilename = "RobotProgram"
+local RCCode = "--Type Code Here"
+local RCSState = "Select a program to load, or create a new program."
 
 local ShowLogsWindow = false
 local ShowFPSOverlay = true
@@ -48,30 +44,6 @@ function DT:splitFilePath(path)
   return path:match("(.-)([^\\/]-%.?([^%.\\/]*))$")
 end
 
---[[function DT:updateTCFilesList()
-  SelectedTCFile = 0 TCFiles = {}
-  local files = love.filesystem.getDirectoryItems("/Maps/Tiled/")
-  for k,filename in ipairs(files) do
-    local p, n, e = DT:splitFilePath("/Maps/Tiled/"..filename)
-    --n = n:sub(0,-5)
-    if e == "lua" then
-      --PMug.Shape[n] = require(string.gsub(path..n,"/","%."))
-      table.insert(TCFiles,n)
-    end
-  end
-end
-
-function DT:updateLSFilesList()
-  SelectedLSFile = 0 LSFiles = {}
-  local files = love.filesystem.getDirectoryItems("/TiledBuilds/")
-  for k,filename in ipairs(files) do
-    local p, n, e = DT:splitFilePath("/TiledBuilds/"..filename)
-    if e == "lua" then
-      table.insert(LSFiles,n)
-    end
-  end
-end]]
-
 function DT:refreshLevelsList()
   SelectedLevelID, LevelsList, LevelsFileNames, TiledFileNames, CompiledFileNames = 0, {}, {}, {}, {} --Reset the lists
 
@@ -90,6 +62,18 @@ function DT:refreshLevelsList()
     local p, n, e = DT:splitFilePath(MapsPath..filename)
     if e == "lua" then
       CompiledFileNames[n] = MapsPath..n
+    end
+  end
+
+  function DT:refreshRCList()
+    SelectedRCID, RCFiles = 0, {}
+
+    local files = love.filesystem.getDirectoryItems(RCPath)
+    for k,filename in ipairs(files) do
+      local p, n, e = DT:splitFilePath(RCPath..filename)
+      if e == "lua" then
+        table.insert(RCFiles,filename)
+      end
     end
   end
 
@@ -139,13 +123,6 @@ function DT:createGameMenu()
   end
 end
 
---[[function DT:createToolsMenu()
-  if imgui.BeginMenu("Tools") then
-      self:insertMenuTools()
-      imgui.EndMenu()
-  end
-end]]
-
 function DT:createDebugMenu()
   if imgui.BeginMenu("Debug") then
       self:insertMenuDebugs()
@@ -156,16 +133,11 @@ end
 function DT:insertMenuGames()
   if imgui.MenuItem("Load",false,ShowLSWindow) then ShowLSWindow = not ShowLSWindow; CurrentLSState = "Select A map to\nshow info" end
   if imgui.IsItemHovered() then imgui.SetTooltip("Loads a compiled level") end
+  if imgui.MenuItem("Code Editor",false,ShowCEWindow) then ShowCEWindow = not ShowCEWindow end
+  if imgui.IsItemHovered() then imgui.SetTooltip("Robot code editor") end
   if imgui.MenuItem("Exit") then love.event.quit() end
   if imgui.IsItemHovered() then imgui.SetTooltip("Closes the game") end
 end
-
---[[function DT:insertMenuTools()
-  if _Loaded then
-    if imgui.MenuItem("Tiled Compiler",false,ShowTCWindow) then ShowTCWindow = not ShowTCWindow end
-    if imgui.IsItemHovered() then imgui.SetTooltip("Compiles Tiled Maps To Game's Format") end
-  end
-end]]
 
 function DT:insertMenuDebugs()
   if imgui.MenuItem("Logs",false,ShowLogsWindow) then ShowLogsWindow = not ShowLogsWindow end
@@ -182,78 +154,13 @@ function DT:createWindows()
   self:createDebugWindows()
 end
 
-function DT:createToolsWindows()
-  --[[if ShowTCWindow then
-    imgui.SetNextWindowPos(25,45, "FirstUseEver")
-    imgui.SetNextWindowSize(430, 240, "FirstUseEver")
-    imgui.Begin("Tiled Compiler",_,{"NoResize","NoSavedSettings"})
-    local LBChanged
-    LBChanged, SelectedTCFile = imgui.ListBox(CurrentTCState.."###TCFilesList",SelectedTCFile,TCFiles,#TCFiles,10)
-    if LBChanged then
-      CurrentTCState = DT:gatherTMapInfo("/Maps/Tiled/"..TCFiles[SelectedTCFile])
-    end
-
-    imgui.Separator()
-    if imgui.Button("Refresh") then
-      self:updateTCFilesList()
-      CurrentTCState = "Refeshed Maps List"
-    end
-    if imgui.IsItemHovered() then imgui.SetTooltip("Refreshes the list of the maps") end
-
-    imgui.SameLine()
-    if imgui.Button("Compile") then
-      if SelectedTCFile == 0 then CurrentTCState = "Please select a map\nfirst to compile" return end
-      TCompiler:compileTiled("/Maps/Tiled/"..TCFiles[SelectedTCFile],"/TiledBuilds/"..TCFiles[SelectedTCFile])
-      CurrentTCState = "Compiled Map:\n "..TCFiles[SelectedTCFile].."\n To: /TiledBuilds/"
-    end
-    if imgui.IsItemHovered() then imgui.SetTooltip("Compiles the selected map") end
-
-    imgui.End()
-  end
-
-  if ShowLSWindow then
-    imgui.SetNextWindowPos(25,45, "FirstUseEver")
-    imgui.SetNextWindowSize(430, 240, "FirstUseEver")
-    imgui.Begin("Load Level",_,{"NoResize","NoSavedSettings"})
-    local LBChanged
-    LBChanged, SelectedLS = imgui.ListBox("###LSFilesList",SelectedLSFile,LSFiles,#LSFiles,10)
-    if LBChanged then
-
-    end
-
-    imgui.Separator()
-    if imgui.Button("Refresh") then
-      self:updateLSFilesList()
-    end
-    if imgui.IsItemHovered() then imgui.SetTooltip("Refreshes the list of the levels") end
-
-    imgui.SameLine()
-    if imgui.Button("Load") then
-      if SelectedLSFile == 0 then return end
-      local WS = require("States.Workspace")
-      WS:loadMap("/TiledBuilds/"..LSFiles[SelectedLSFile])
-    end
-    if imgui.IsItemHovered() then imgui.SetTooltip("Loads the selected level") end
-
-    imgui.SameLine()
-    if imgui.Button("Delete") then
-      if SelectedLSFile == 0 then return end
-      love.filesystem.remove("/TiledBuilds/"..LSFiles[SelectedLSFile])
-      self:updateLSFilesList()
-    end
-    if imgui.IsItemHovered() then imgui.SetTooltip("Deletes the selected level") end
-
-    imgui.End()
-  end]]
-end
-
 function DT:createGameWindows()
   if ShowLSWindow then
     --imgui.SetNextWindowPos(25,45, "FirstUseEver")
     imgui.SetNextWindowSize(430, 240, "FirstUseEver")
     imgui.Begin("Load Level")--,_,{"NoResize","NoSavedSettings"})
     local LBChanged
-    LBChanged, SelectedLevelID = imgui.ListBox(CurrentLSState.."###LSFilesList",SelectedLevelID,LevelsList,#LevelsList,10)
+    LBChanged, SelectedLevelID = imgui.ListBox(CurrentLSState.."##LSFilesList",SelectedLevelID,LevelsList,#LevelsList,10)
     if LBChanged then
       if TiledFileNames[LevelsFileNames[SelectedLevelID]] then
         CurrentLSState = DT:gatherTMapInfo(TiledFileNames[LevelsFileNames[SelectedLevelID]])
@@ -304,6 +211,88 @@ function DT:createGameWindows()
 
     imgui.End()
   end
+
+  if ShowCEWindow then
+    imgui.SetNextWindowSize(430, 240, "FirstUseEver")
+    imgui.Begin("Robot Code Editor - "..RCFilename..".lua##RCE",_,{"MenuBar"})
+
+    if imgui.BeginMenuBar() then
+      if imgui.BeginMenu("File") then
+        if imgui.MenuItem("New","Ctrl+N") then
+
+        end
+        if imgui.IsItemHovered() then imgui.SetTooltip("Create a new program") end
+
+        if imgui.MenuItem("Load","Ctrl+L") then
+
+        end
+        if imgui.IsItemHovered() then imgui.SetTooltip("Load a program") end
+
+        if imgui.MenuItem("Save","Ctrl+S") then
+
+        end
+        if imgui.IsItemHovered() then imgui.SetTooltip("Save the current program") end
+
+        if imgui.MenuItem("Save As","Ctrl+Shift+S") then
+
+        end
+        if imgui.IsItemHovered() then imgui.SetTooltip("Save the current program, but with a different filename") end
+
+        if imgui.MenuItem("Delete","Ctrl+D") then
+
+        end
+        if imgui.IsItemHovered() then imgui.SetTooltip("Delete a program") end
+        imgui.EndMenu()
+      end
+      if imgui.IsItemHovered() then imgui.SetTooltip("Save/Load Files") end
+
+      if imgui.BeginMenu("Program") then
+        if imgui.MenuItem("Run","Ctrl+R") then
+          local WS = require("States.Workspace")
+          local Map = WS:getMap()
+          local Robots = Map:getTilesByType("Offical_Robot")
+          local Robot = Robots[1]
+          Robot:loadCode(loadstring(RCCode))
+        end
+        if imgui.IsItemHovered() then imgui.SetTooltip("Runs the current program") end
+
+        if imgui.MenuItem("Terminate","Ctrl+T") then
+          local WS = require("States.Workspace")
+          local Map = WS:getMap()
+          local Robots = Map:getTilesByType("Offical_Robot")
+          local Robot = Robots[1]
+          Robot:loadCode(function()end,true)
+        end
+        if imgui.IsItemHovered() then imgui.SetTooltip("Terminate the robot program") end
+
+        if imgui.MenuItem("Reset","Ctrl+E") then
+          local WS = require("States.Workspace")
+          local Map = WS:getMap()
+          local Robots = Map:getTilesByType("Offical_Robot")
+          local Robot = Robots[1]
+          Robot:loadCode(function()end)
+        end
+        if imgui.IsItemHovered() then imgui.SetTooltip("Resets the robot and stop the program") end
+        imgui.EndMenu()
+      end
+      if imgui.IsItemHovered() then imgui.SetTooltip("Run/Stop Files") end
+
+      imgui.EndMenuBar()
+    end
+
+
+    --[[local LBChanged, SelectedRCID = imgui.ListBox("Saved Programs##RCFilesList",0,RCFiles,#RCFiles,5)
+    if LBChanged then
+      RCFilename = RCFiles[SelectedRCID]:sub(0,-5)
+    end
+    imgui.Text(RCSState)]]
+
+    local status
+    status, RCCode = imgui.InputTextMultiline("##CodeEditor", RCCode, 10000, 415, 185)
+
+
+    imgui.End()
+  end
 end
 
 function DT:createDebugWindows()
@@ -323,8 +312,7 @@ function DT:createDebugWindows()
   end
 end
 
---DT:updateTCFilesList()
---DT:updateLSFilesList()
 DT:refreshLevelsList()
+DT:refreshRCList()
 
 return DT
