@@ -8,13 +8,14 @@ local bit = require("bit")
 function Map:initialize(data)
   print("Loading Map")
   self.Tiles = data.t
+  self.TilesList = {}
   self.Width, self.Height, self.Tilesize = data.w, data.h, data.ts
   self.Layers = {}
-  
+
   local CL = {}
   local CLR = {}
-  local LSize = self.Width*self.Height
-  
+  local LSize = self.Width*self.Height--MapSize
+
   --Extract the data to Layers and Rotation Data Layers
   for i=0, (#data.d/(LSize*2))-1 do
     CL[i+1] = {}
@@ -24,8 +25,8 @@ function Map:initialize(data)
       CLR[i+1][n] = data.d[i*LSize*2 + n + LSize]
     end
   end
-  
-  --Translate Tiles Ids to Tiles Names
+
+  --Translate Tiles Ids to Tiles Names & extract rotation data
   for k, layer in ipairs(CL) do
     self.Layers[k] = {}
     for y=1, self.Height do
@@ -39,12 +40,19 @@ function Map:initialize(data)
           if bit.band(rotData,4)==4 then rot = math.rad(90) end
           if bit.band(rotData,8)==8 then rot = math.rad(-90) end
           if TilesSystem.Tiles[tname] then
-            table.insert(self.Layers[k],TilesSystem:newTile(tname,x-1,y-1,self.Tilesize,rot,inX,inY))
+            local Tile = TilesSystem:newTile(tname,x-1,y-1,self.Tilesize,rot,inX,inY)
+            if not self.TilesList[tname] then self.TilesList[tname] = {} end
+            table.insert(self.Layers[k],Tile)
+            table.insert(self.TilesList[tname],Tile)
           end
         end
       end
     end
   end
+end
+
+function Map:getTilesByType(type)
+  return self.TilesList[type] or {}
 end
 
 function Map:draw()
